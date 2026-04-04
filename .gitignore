@@ -1,0 +1,7 @@
+node_modules/
+
+#Environment Variables
+.env
+
+#Persistent Game Data
+data.json
