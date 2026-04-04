@@ -31,22 +31,22 @@ It also includes functionality for a logs channel
 ## Setup
 
 1. Clone the repository:
-   
-    -`git clone https://github.com/JacksonSchultz20/Discord-Reaction-Game-Bot.git`
-    -`cd Discord-Reaction-Game-Bot`
+
+   - `git clone https://github.com/JacksonSchultz20/Discord-Reaction-Game-Bot.git`
+   - `cd Discord-Reaction-Game-Bot`
   
-2. Install dependencies
-   
-    -`npm install`
+2. Install dependencies:
 
-3. Create your .env file
-   
-    -`cp .env.example .env`
-    -`Edit .env and replace the placeholders with your actual token, channel id's, and role id`
+   - `npm install`
 
-4. Run the bot
-   
-    -`node index.js`
+3. Create your `.env` file:
+
+   - `cp .env.example .env`
+   - Edit `.env` and replace the placeholders with your actual token, channel IDs, and role ID
+
+4. Run the bot:
+
+   - `node index.js`
 
 
    
