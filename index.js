@@ -24,6 +24,9 @@ const logsChannelId = process.env.LOGS_CHANNEL_ID;
 const TEAM_LEADER_ROLE_ID = process.env.TEAM_LEADER_ROLE_ID;
 const gameChannels = process.env.GAME_CHANNEL_IDS.split(',')
 
+let team1Name = 'Gardeners';
+let team2Name = 'Beekeepers';
+
 let players = new Map();
 let teams = {
     team1: { score: 0, members: 0},
@@ -98,12 +101,12 @@ async function updateLeaderboard(){
             console.log(`Could not fetch username for ${id}:`, err);
         }
 
-        leaderboardText += `${i + 1}. ${data.team.padEnd(6)} | <@${username}> - ${data.score} pts\n`;
+        leaderboardText += `${i + 1}. ${data.teamName.padEnd(6)} | <@${username}> - ${data.score} pts\n`;
     }
 
     leaderboardText += `\n**Team Scores**\n`;
-    leaderboardText += `Team 1: ${teams.team1.score} pts\n`;
-    leaderboardText += `Team 2: ${teams.team2.score} pts\n`;
+    leaderboardText += `${team1Name}: ${teams.team1.score} pts\n`;
+    leaderboardText += `${team2Name}: ${teams.team2.score} pts\n`;
     leaderboardText += '```'; //End the block
 
     if (leaderboardMessage){
@@ -124,10 +127,12 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         const team = nextTeam;
+        const teamName = team === 'team1' ? team1Name : team2Name;
 
         players.set(userId, {
             team,
-            score: 0
+            score: 0,
+            teamName
         });
 
         teams[team].members++;
@@ -138,7 +143,7 @@ client.on('interactionCreate', async (interaction) => {
         nextTeam = team === 'team1' ? 'team2' : 'team1';
 
         await interaction.reply({
-            content: `You joined ${team}!`,
+            content: `You joined ${teamName}!`,
             ephemeral: true
         });
 
@@ -167,20 +172,43 @@ client.on('messageCreate', async (message) => {
         gameRunning = true
 
         while (gameRunning) {
-            const isTrap = Math.random() < 0.25 //25% chance for trap
-            let emoji = '👍'; //default 
-            let trapEmoji = '👎'; 
+            //const isTrap = Math.random() < 0.25 //25% chance for trap
+            const roll = Math.random()
+            //console.log(`Rolled a ${roll}`);
+
+            const isTrap = roll < 0.25; //25 % chance for trap
+            const isBonus = roll >= 0.25 && roll < 0.35; // next 10%
+            let emoji = '🌻'; //default 
+            let trapEmoji = '🐝'; 
+            let bonusEmoji = '🦋';
+            let messageText;
+            let reactionEmoji;
 
 
             const randomChannelId = gameChannels[Math.floor(Math.random() * gameChannels.length)];
             const channel = await client.channels.fetch(randomChannelId);
 
-            const gameMessage = await channel.send(isTrap ? `React with ${trapEmoji} NOW!` : 'React with 👍 NOW!');
-            await gameMessage.react(isTrap ? trapEmoji : emoji);
+            if (isTrap){
+                messageText = `React with ${trapEmoji} NOW!`;
+                reactionEmoji = trapEmoji;
+            } else if (isBonus) {
+                messageText = `React with ${bonusEmoji} NOW! (+5 points!)`;
+                reactionEmoji = bonusEmoji;
+            } else {
+                messageText = `React with ${emoji} NOW!`;
+                reactionEmoji = emoji;
+            }
+            
+            const gameMessage = await channel.send(messageText);
+            await gameMessage.react(reactionEmoji);
+
+            //const gameMessage = await channel.send(isTrap ? `React with ${trapEmoji} NOW!` : 'React with 👍 NOW!');
+            //await gameMessage.react(isTrap ? trapEmoji : emoji);
 
             const filter = (reaction, user) => {
                 if (isTrap) return reaction.emoji.name === trapEmoji;
-                return reaction.emoji.name === '👍' && !user.bot;
+                if (isBonus) return reaction.emoji.name === bonusEmoji;
+                return reaction.emoji.name === emoji && !user.bot;
             };
 
             try {
@@ -214,20 +242,29 @@ client.on('messageCreate', async (message) => {
                         player.score -= 1;
                         teams[player.team].score -= 1;
 
-                        const infoMessage = await channel.send(`${user} reacted with the trap (-1 point for ${player.team})`);
+                        const infoMessage = await channel.send(`${user} reacted with the trap (-1 point for ${player.teamName})`);
                         setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
 
                         const logsChannel = await client.channels.fetch(logsChannelId);
-                        await logsChannel.send(`[LOG] ${user.tag} reacted to the trap first in <#${channel.id}> and lost a point for ${player.team}.`);
+                        await logsChannel.send(`[LOG] ${user.tag} reacted to the trap first in <#${channel.id}> and lost a point for ${player.teamName}.`);
+                    } else if (isBonus){
+                        player.score += 5;
+                        teams[player.team].score += 5;
+
+                        const infoMessage = await channel.send(`${user} got the bonus! (+5 points for ${player.teamName})`);
+                        setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
+
+                        const logsChannel = await client.channels.fetch(logsChannelId);
+                        await logsChannel.send(`[LOG] ${user.tag} reacted to the bonus first in <#${channel.id}> and got +5 points for ${player.teamName}.`);
                     } else {
                         player.score += 1;
                         teams[player.team].score += 1;
                         
-                        const infoMessage = await channel.send(`${user} was the fastest! (+1 point for ${player.team})`);
+                        const infoMessage = await channel.send(`${user} was the fastest! (+1 point for ${player.teamName})`);
                         setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
 
                         const logsChannel = await client.channels.fetch(logsChannelId);
-                        await logsChannel.send(`[LOG] ${user.tag} reacted first in <#${channel.id}> and scored for ${player.team}.`);
+                        await logsChannel.send(`[LOG] ${user.tag} reacted first in <#${channel.id}> and scored for ${player.teamName}.`);
                     }
                     updateLeaderboard();
 
