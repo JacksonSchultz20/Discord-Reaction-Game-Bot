@@ -22,6 +22,8 @@ client.login(TOKEN);
 const leaderboardChannelId = process.env.LEADERBOARD_CHANNEL_ID;
 const logsChannelId = process.env.LOGS_CHANNEL_ID;
 const TEAM_LEADER_ROLE_ID = process.env.TEAM_LEADER_ROLE_ID;
+const TEAM1_ROLE_ID = process.env.TEAM1_ROLE_ID
+const TEAM2_ROLE_ID = process.env.TEAM2_ROLE_ID
 const gameChannels = process.env.GAME_CHANNEL_IDS.split(',')
 
 let team1Name = 'Gardeners';
@@ -128,6 +130,16 @@ client.on('interactionCreate', async (interaction) => {
 
         const team = nextTeam;
         const teamName = team === 'team1' ? team1Name : team2Name;
+
+        const member = await interaction.guild.members.fetch(userId);
+
+        const roleId = team === 'team1'
+            ? TEAM1_ROLE_ID
+            : TEAM2_ROLE_ID;
+        
+        await member.roles.add(roleId).catch(err => {
+            console.log('Failed to add role:', err);
+        });
 
         players.set(userId, {
             team,
