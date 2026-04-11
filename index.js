@@ -24,6 +24,7 @@ const logsChannelId = process.env.LOGS_CHANNEL_ID;
 const TEAM_LEADER_ROLE_ID = process.env.TEAM_LEADER_ROLE_ID;
 const TEAM1_ROLE_ID = process.env.TEAM1_ROLE_ID
 const TEAM2_ROLE_ID = process.env.TEAM2_ROLE_ID
+const BOT_COMMANDS_CHANNEL_ID = process.env.BOT_COMMANDS_CHANNEL_ID
 const gameChannels = process.env.GAME_CHANNEL_IDS.split(',')
 
 let team1Name = 'Gardeners';
@@ -43,6 +44,7 @@ function loadData(){
 
     players = new Map(Object.entries(data.players));
     teams = data.teams;
+    updateLeaderboard();
 }
 
 function saveData(){
@@ -174,6 +176,23 @@ client.on('messageCreate', async (message) => {
         if (!isTeamLead){
             return;
         }
+    }
+
+    if (message.content === '!myscore'){
+        if (message.channel.id !== BOT_COMMANDS_CHANNEL_ID){
+            return;
+        }
+
+        const userId = message.author.id;
+        const player = players.get(userId);
+
+        if (!player){
+            return message.reply('You are not on a team!');
+        }
+
+        return message.reply(
+            `You are on ${player.teamName} and have ${player.score} points.`
+        )
     }
 
     if (message.content === '!startround') {
