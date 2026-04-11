@@ -230,8 +230,8 @@ client.on('messageCreate', async (message) => {
                 reactionEmoji = emoji;
             }
             
-            const startTime = Date.now();
             const gameMessage = await channel.send(messageText);
+            const startTime = Date.now();
             await gameMessage.react(reactionEmoji);            
 
             //const gameMessage = await channel.send(isTrap ? `React with ${trapEmoji} NOW!` : 'React with 👍 NOW!');
