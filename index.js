@@ -230,8 +230,9 @@ client.on('messageCreate', async (message) => {
                 reactionEmoji = emoji;
             }
             
+            const startTime = Date.now();
             const gameMessage = await channel.send(messageText);
-            await gameMessage.react(reactionEmoji);
+            await gameMessage.react(reactionEmoji);            
 
             //const gameMessage = await channel.send(isTrap ? `React with ${trapEmoji} NOW!` : 'React with 👍 NOW!');
             //await gameMessage.react(isTrap ? trapEmoji : emoji);
@@ -252,6 +253,7 @@ client.on('messageCreate', async (message) => {
 
                 const reaction = collected.first();
                 const user = reaction.users.cache.filter(u => !u.bot).first();
+                const reactionSpeed = Date.now() - startTime;
 
                 //channel.send(`${user} was the fastest!`);
 
@@ -273,29 +275,29 @@ client.on('messageCreate', async (message) => {
                         player.score -= 1;
                         teams[player.team].score -= 1;
 
-                        const infoMessage = await channel.send(`${user} reacted with the trap (-1 point for ${player.teamName})`);
+                        const infoMessage = await channel.send(`${user} reacted with the trap in ${reactionSpeed}ms (-1 point for ${player.teamName})`);
                         setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
 
                         const logsChannel = await client.channels.fetch(logsChannelId);
-                        await logsChannel.send(`[LOG] ${user.tag} reacted to the trap first in <#${channel.id}> and lost a point for ${player.teamName}.`);
+                        await logsChannel.send(`[LOG] ${user.tag} reacted to the trap first in <#${channel.id}> and lost a point for ${player.teamName}. Reaction time: ${reactionSpeed}ms.`);
                     } else if (isBonus){
                         player.score += 5;
                         teams[player.team].score += 5;
 
-                        const infoMessage = await channel.send(`${user} got the bonus! (+5 points for ${player.teamName})`);
+                        const infoMessage = await channel.send(`${user} got the bonus in ${reactionSpeed}ms! (+5 points for ${player.teamName})`);
                         setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
 
                         const logsChannel = await client.channels.fetch(logsChannelId);
-                        await logsChannel.send(`[LOG] ${user.tag} reacted to the bonus first in <#${channel.id}> and got +5 points for ${player.teamName}.`);
+                        await logsChannel.send(`[LOG] ${user.tag} reacted to the bonus first in <#${channel.id}> and got +5 points for ${player.teamName}. Reaction time: ${reactionSpeed}ms.`);
                     } else {
                         player.score += 1;
                         teams[player.team].score += 1;
                         
-                        const infoMessage = await channel.send(`${user} was the fastest! (+1 point for ${player.teamName})`);
+                        const infoMessage = await channel.send(`${user} was the fastest in ${reactionSpeed}ms! (+1 point for ${player.teamName})`);
                         setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
 
                         const logsChannel = await client.channels.fetch(logsChannelId);
-                        await logsChannel.send(`[LOG] ${user.tag} reacted first in <#${channel.id}> and scored for ${player.teamName}.`);
+                        await logsChannel.send(`[LOG] ${user.tag} reacted first in <#${channel.id}> and scored for ${player.teamName}. Reaction time: ${reactionSpeed}ms.`);
                     }
                     saveData();
                     updateLeaderboard();
@@ -303,11 +305,12 @@ client.on('messageCreate', async (message) => {
 
 
             } catch (err) {
-                    const infoMessage = await channel.send(`No one reacted in time!`);
-                    setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
+                //console.log(err);
+                const infoMessage = await channel.send(`No one reacted in time!`);
+                setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
 
-                    const logsChannel = await client.channels.fetch(logsChannelId);
-                    await logsChannel.send(`[LOG] Message Missed in <#${channel.id}>.`);
+                const logsChannel = await client.channels.fetch(logsChannelId);
+                await logsChannel.send(`[LOG] Message Missed in <#${channel.id}>.`);
             }
 
             try {
