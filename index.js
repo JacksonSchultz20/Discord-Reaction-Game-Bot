@@ -246,7 +246,7 @@ client.on('messageCreate', async (message) => {
                 const collected = await gameMessage.awaitReactions({
                     filter,
                     max: 1,
-                    time: 10000,
+                    time: 15000,
                     errors: ['time'],
                 });
 
@@ -299,7 +299,6 @@ client.on('messageCreate', async (message) => {
                     }
                     saveData();
                     updateLeaderboard();
-
                 }
 
 
