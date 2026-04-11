@@ -297,6 +297,7 @@ client.on('messageCreate', async (message) => {
                         const logsChannel = await client.channels.fetch(logsChannelId);
                         await logsChannel.send(`[LOG] ${user.tag} reacted first in <#${channel.id}> and scored for ${player.teamName}.`);
                     }
+                    saveData();
                     updateLeaderboard();
 
                 }
