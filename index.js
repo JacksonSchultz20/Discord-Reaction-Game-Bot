@@ -252,7 +252,11 @@ client.on('messageCreate', async (message) => {
                 });
 
                 const reaction = collected.first();
+                if (!reaction) continue;
+
                 const user = reaction.users.cache.filter(u => !u.bot).first();
+                if (!user) continue;
+
                 const reactionSpeed = Date.now() - startTime;
 
                 //channel.send(`${user} was the fastest!`);
