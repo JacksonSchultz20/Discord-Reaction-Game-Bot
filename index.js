@@ -56,7 +56,6 @@ function saveData(){
     fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
 }
 
-loadData()
 let gameRunning = false;
 
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
@@ -119,6 +118,7 @@ async function updateLeaderboard(){
 }
 
 let nextTeam = 'team1';
+loadData()
 
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
@@ -252,11 +252,7 @@ client.on('messageCreate', async (message) => {
                 });
 
                 const reaction = collected.first();
-                if (!reaction) continue;
-
                 const user = reaction.users.cache.filter(u => !u.bot).first();
-                if (!user) continue;
-
                 const reactionSpeed = Date.now() - startTime;
 
                 //channel.send(`${user} was the fastest!`);
