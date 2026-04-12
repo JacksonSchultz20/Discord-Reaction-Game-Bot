@@ -264,11 +264,12 @@ client.on('messageCreate', async (message) => {
                 const player = players.get(user.id);
 
                 if (!player) {
+                    await gameMessage.delete();
                     const infoMessage = await channel.send(`${user} reacted first but is not on a team!`);
                     setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
 
                     //Send to logs channel
-                    const logsChannel = await client.channels.fetch(logChannelId);
+                    const logsChannel = await client.channels.fetch(logsChannelId);
                     await logsChannel.send(`[LOG] ${user.tag} reacted first in <#${channel.id}> but is not on a team.`);
 
                     const delay = Math.floor(Math.random() * (30000 - 15000 + 1)) + 15000;
