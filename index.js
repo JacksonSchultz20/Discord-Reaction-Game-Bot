@@ -247,7 +247,7 @@ client.on('messageCreate', async (message) => {
                 const collected = await gameMessage.awaitReactions({
                     filter,
                     max: 1,
-                    time: 15000,
+                    time: 30000,
                     errors: ['time'],
                 });
 
