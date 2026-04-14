@@ -307,8 +307,8 @@ client.on('messageCreate', async (message) => {
 
             } catch (err) {
                 //console.log(err);
-                const infoMessage = await channel.send(`No one reacted in time!`);
-                setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
+                //const infoMessage = await channel.send(`No one reacted in time!`);
+                //setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
 
                 const logsChannel = await client.channels.fetch(logsChannelId);
                 await logsChannel.send(`[LOG] Message Missed in <#${channel.id}>.`);
