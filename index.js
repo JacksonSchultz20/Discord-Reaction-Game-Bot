@@ -125,9 +125,10 @@ client.on('interactionCreate', async (interaction) => {
 
     if (interaction.customId === 'join_team'){
         const userId = interaction.user.id;
+        await interaction.deferReply({ ephemeral: true});
 
         if (players.has(userId)){
-            return interaction.reply({ content: 'You are already on a team!', ephemeral: true });
+            return interaction.editReply({ content: 'You are already on a team!', ephemeral: true });
         }
 
         const team = nextTeam;
@@ -156,10 +157,9 @@ client.on('interactionCreate', async (interaction) => {
         //Alternate team
         nextTeam = team === 'team1' ? 'team2' : 'team1';
 
-        await interaction.reply({
-            content: `You joined ${teamName}!`,
-            ephemeral: true
-        });
+        await interaction.editReply({
+            content: `You joined ${teamName}!`
+        })
 
         updateLeaderboard();
     }
