@@ -208,15 +208,15 @@ client.on('messageCreate', async (message) => {
             //console.log(`Rolled a ${roll}`);
 
             //Testing Percents
-            const isTrap = roll < 0.01; //25 % chance for trap
-            const isBonus = roll >= 0.01 && roll < 0.02; // next 10%
-            const isBonus10 = roll >= 0.03 && roll < 0.04; // next 3%
-            const isTrap5 = roll >= 0.04 && roll < 0.99; // next 5%
+            //const isTrap = roll < 0.01; //25 % chance for trap
+            //const isBonus = roll >= 0.01 && roll < 0.02; // next 10%
+            //const isBonus10 = roll >= 0.03 && roll < 0.04; // next 3%
+            //const isTrap5 = roll >= 0.04 && roll < 0.99; // next 5%
 
-            //const isTrap = roll < 0.25; //25 % chance for trap
-            //const isBonus = roll >= 0.25 && roll < 0.35; // next 10%
-            //const isBonus10 = roll >= 0.35 && roll < 0.38; // next 3%
-            //const isTrap5 = roll >= 0.38 && roll < 0.43; // next 5%
+            const isTrap = roll < 0.25; //25 % chance for trap
+            const isBonus = roll >= 0.25 && roll < 0.35; // next 10%
+            const isBonus10 = roll >= 0.35 && roll < 0.38; // next 3%
+            const isTrap5 = roll >= 0.38 && roll < 0.43; // next 5%
             let emoji = '🍬'; //default 
             let trapEmoji = '🪦'; 
             let bonusEmoji = '🍭';
