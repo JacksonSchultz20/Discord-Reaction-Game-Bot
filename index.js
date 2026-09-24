@@ -27,8 +27,8 @@ const TEAM2_ROLE_ID = process.env.TEAM2_ROLE_ID
 const BOT_COMMANDS_CHANNEL_ID = process.env.BOT_COMMANDS_CHANNEL_ID
 const gameChannels = process.env.GAME_CHANNEL_IDS.split(',')
 
-let team1Name = 'Gardeners';
-let team2Name = 'Beekeepers';
+let team1Name = 'Spiders';
+let team2Name = 'Bats';
 
 let players = new Map();
 let teams = {
@@ -62,7 +62,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
 
 let leaderboardMessage;
 
-client.once('ready', async () => {
+client.once('clientReady', async () => {
     console.log(`Logged in as ${client.user.tag}`);
 
     const channel = await client.channels.fetch(leaderboardChannelId)
@@ -207,11 +207,21 @@ client.on('messageCreate', async (message) => {
             const roll = Math.random()
             //console.log(`Rolled a ${roll}`);
 
-            const isTrap = roll < 0.25; //25 % chance for trap
-            const isBonus = roll >= 0.25 && roll < 0.35; // next 10%
-            let emoji = '🌻'; //default 
-            let trapEmoji = '🐝'; 
-            let bonusEmoji = '🦋';
+            //Testing Percents
+            const isTrap = roll < 0.01; //25 % chance for trap
+            const isBonus = roll >= 0.01 && roll < 0.02; // next 10%
+            const isBonus10 = roll >= 0.03 && roll < 0.04; // next 3%
+            const isTrap5 = roll >= 0.04 && roll < 0.99; // next 5%
+
+            //const isTrap = roll < 0.25; //25 % chance for trap
+            //const isBonus = roll >= 0.25 && roll < 0.35; // next 10%
+            //const isBonus10 = roll >= 0.35 && roll < 0.38; // next 3%
+            //const isTrap5 = roll >= 0.38 && roll < 0.43; // next 5%
+            let emoji = '🍬'; //default 
+            let trapEmoji = '🪦'; 
+            let bonusEmoji = '🍭';
+            let bonus10Emoji = '🍫';
+            let trap5Emoji = '💀';
             let messageText;
             let reactionEmoji;
 
@@ -222,9 +232,15 @@ client.on('messageCreate', async (message) => {
             if (isTrap){
                 messageText = `React with ${trapEmoji} NOW!`;
                 reactionEmoji = trapEmoji;
+            } else if (isTrap5) {
+                messageText = `React with ${trap5Emoji} NOW!`;
+                reactionEmoji = trap5Emoji;
             } else if (isBonus) {
                 messageText = `React with ${bonusEmoji} NOW! (+5 points!)`;
                 reactionEmoji = bonusEmoji;
+            } else if (isBonus10) {
+                messageText = `React with ${bonus10Emoji} NOW! (+10 points!)`;
+                reactionEmoji = bonus10Emoji;
             } else {
                 messageText = `React with ${emoji} NOW!`;
                 reactionEmoji = emoji;
@@ -239,7 +255,9 @@ client.on('messageCreate', async (message) => {
 
             const filter = (reaction, user) => {
                 if (isTrap) return reaction.emoji.name === trapEmoji;
+                if (isTrap5) return reaction.emoji.name === trap5Emoji;
                 if (isBonus) return reaction.emoji.name === bonusEmoji;
+                if (isBonus10) return reaction.emoji.name === bonus10Emoji;
                 return reaction.emoji.name === emoji && !user.bot;
             };
 
@@ -281,6 +299,15 @@ client.on('messageCreate', async (message) => {
 
                         const logsChannel = await client.channels.fetch(logsChannelId);
                         await logsChannel.send(`[LOG] ${user.tag} reacted to the trap first in <#${channel.id}> and lost a point for ${player.teamName}. Reaction time: ${reactionSpeed}ms.`);
+                    } else if (isTrap5){
+                        player.score -= 5;
+                        teams[player.team].score -= 5;
+
+                        const infoMessage = await channel.send(`${user} reacted with the trap in ${reactionSpeed}ms (-5 point for ${player.teamName})`);
+                        setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
+
+                        const logsChannel = await client.channels.fetch(logsChannelId);
+                        await logsChannel.send(`[LOG] ${user.tag} reacted to the trap5 first in <#${channel.id}> and lost 5 points for ${player.teamName}. Reaction time: ${reactionSpeed}ms.`);
                     } else if (isBonus){
                         player.score += 5;
                         teams[player.team].score += 5;
@@ -290,6 +317,15 @@ client.on('messageCreate', async (message) => {
 
                         const logsChannel = await client.channels.fetch(logsChannelId);
                         await logsChannel.send(`[LOG] ${user.tag} reacted to the bonus first in <#${channel.id}> and got +5 points for ${player.teamName}. Reaction time: ${reactionSpeed}ms.`);
+                    } else if (isBonus10){
+                        player.score += 10;
+                        teams[player.team].score += 10;
+
+                        const infoMessage = await channel.send(`${user} got the bonus in ${reactionSpeed}ms! (+10 points for ${player.teamName})`);
+                        setTimeout(() => infoMessage.delete().catch(() => {}), 5000);
+
+                        const logsChannel = await client.channels.fetch(logsChannelId);
+                        await logsChannel.send(`[LOG] ${user.tag} reacted to the bonus10 first in <#${channel.id}> and got +10 points for ${player.teamName}. Reaction time: ${reactionSpeed}ms.`);
                     } else {
                         player.score += 1;
                         teams[player.team].score += 1;
